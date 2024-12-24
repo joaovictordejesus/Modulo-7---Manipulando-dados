@@ -1,1 +1,179 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed de Rede Social</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        #postForm {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            z-index: 1000;
+        }
+
+        textarea {
+            width: 80%;
+            padding: 10px;
+            font-size: 14px;
+            resize: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #feed {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post {
+            background-color: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .username {
+            font-weight: bold;
+        }
+
+        .post-content {
+            margin-bottom: 10px;
+        }
+
+        .post img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .likes {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .likes button {
+            padding: 5px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .likes button:hover {
+            background-color: #0056b3;
+        }
+
+        .likes span {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="postForm">
+        <textarea id="postText" rows="3" placeholder="O que você está pensando?"></textarea>
+        <button onclick="postar()">Postar</button>
+    </div>
+
+    <div id="feed">
+        <!-- Os posts serão adicionados aqui dinamicamente -->
+    </div>
+
+    <script>
+        const feed = [];
+
+        async function postar() {
+            const texto = document.getElementById("postText").value.trim();
+
+            if (!texto) {
+                alert("Por favor, digite algo para postar!");
+                return;
+            }
+
+            const gatinho = await fetch("https://api.thecatapi.com/v1/images/search")
+                .then(res => res.json())
+                .then(data => data[0]?.url)
+                .catch(() => "");
+
+            const novoPost = {
+                data: new Date().toLocaleString(),
+                username: "SeuUsuário",
+                avatar: "https://via.placeholder.com/50",
+                texto,
+                imagem: gatinho,
+                likes: 0
+            };
+
+            feed.unshift(novoPost);
+            document.getElementById("postText").value = "";
+            atualizarFeed();
+        }
+
+        function curtir(index) {
+            feed[index].likes++;
+            atualizarFeed();
+        }
+
+        function atualizarFeed() {
+            const feedDiv = document.getElementById("feed");
+            feedDiv.innerHTML = "";
+
+            feed.forEach((post, index) => {
+                const postDiv = document.createElement("div");
+                postDiv.className = "post";
+
+                postDiv.innerHTML = `
+                    <div class="post-header">
+                        <img src="${post.avatar}" alt="Avatar" class="avatar">
+                        <div class="username">${post.username}</div>
+                    </div>
+                    <div class="post-content">${post.texto}</div>
+                    ${post.imagem ? `<img src="${post.imagem}" alt="Imagem do gatinho">` : ""}
+                    <div class="likes">
+                        <button onclick="curtir(${index})">Curtir</button>
+                        <span>${post.likes} like(s)</span>
+                    </div>
+                `;
+
+                feedDiv.appendChild(postDiv);
+            });
+        }
+    </script>
+
+</body>
+</html>
+
