@@ -1,0 +1,108 @@
+ <!--João Victor de Jesus -->
+<!DOCTYPE html> 
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botão Curtir</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        input {
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 5px 15px;
+            font-size: 14px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Botão de Curtir</h1>
+
+    <!-- Campo de texto e botões -->
+    <input type="text" id="nome" placeholder="Digite seu nome">
+    <button onclick="curtir()">Curtir</button>
+    <button onclick="limpar()">Limpar</button>
+
+    <!-- Exibir as pessoas que curtiram -->
+    <p id="listaCurtiram">Ninguém curtiu</p>
+
+    <script>
+        // Array para armazenar os nomes das pessoas que curtiram
+        let pessoasCurtiram = JSON.parse(localStorage.getItem("pessoasCurtiram")) || [];
+
+        // Atualização da lista ao carregar a página
+        atualizarLista();
+
+        // Gerenciar o clique no botão "Curtir"
+        function curtir() {
+            const nome = document.getElementById("nome").value.trim();
+
+            // Verifica se o campo de nome está vazio
+            if (nome === "") {
+                alert("Por favor, digite um nome!");
+                return;
+            }
+
+            // Verifica se o nome já foi adicionado
+            if (pessoasCurtiram.includes(nome)) {
+                alert("Esse nome já curtiu!");
+                return;
+            }
+
+            // Adicionar o nome ao array
+            pessoasCurtiram.push(nome);
+
+            // Salvar no localStorage
+            localStorage.setItem("pessoasCurtiram", JSON.stringify(pessoasCurtiram));
+
+            // Atualiza a lista de pessoas que curtiram
+            atualizarLista();
+
+            // Limpar o campo de texto
+            document.getElementById("nome").value = "";
+        }
+
+        // Atualizar o parágrafo com base nas regras
+        function atualizarLista() {
+            const listaCurtiram = document.getElementById("listaCurtiram");
+
+            if (pessoasCurtiram.length === 0) {
+                listaCurtiram.innerText = "Ninguém curtiu";
+            } else if (pessoasCurtiram.length === 1) {
+                listaCurtiram.innerText = `${pessoasCurtiram[0]} curtiu`;
+            } else if (pessoasCurtiram.length === 2) {
+                listaCurtiram.innerText = `${pessoasCurtiram[0]} e ${pessoasCurtiram[1]} curtiram`;
+            } else {
+                const maisPessoas = pessoasCurtiram.length - 2;
+                listaCurtiram.innerText = `${pessoasCurtiram[0]}, ${pessoasCurtiram[1]} e mais ${maisPessoas} pessoas curtiram`;
+            }
+        }
+
+        // Função para limpar os dados
+        function limpar() {
+            if (confirm("Tem certeza que deseja limpar a lista de curtidas?")) {
+                pessoasCurtiram = [];
+                localStorage.removeItem("pessoasCurtiram");
+                atualizarLista();
+            }
+        }
+    </script>
+
+</body>
+</html>
