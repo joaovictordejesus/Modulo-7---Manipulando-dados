@@ -1,1 +1,120 @@
+<!-- João Victor de Jesus -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de Usuários no GitHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .resultados {
+            margin-top: 20px;
+        }
+
+        .usuario {
+            text-align: left;
+            margin: 10px auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 50%;
+            display: flex;
+            align-items: center;
+        }
+
+        .usuario img {
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .usuario div {
+            flex: 1;
+        }
+
+        .erro {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Busca de Usuários no GitHub</h1>
+
+    <!-- Campo de busca -->
+    <input type="text" id="busca" placeholder="Digite o nome do usuário">
+    <button onclick="buscarUsuarios()">Buscar</button>
+
+    <!-- Resultados -->
+    <div class="resultados" id="resultados">
+        <!-- Resultados serão exibidos aqui -->
+    </div>
+
+    <script>
+        async function buscarUsuarios() {
+            const busca = document.getElementById("busca").value.trim();
+            const resultadosDiv = document.getElementById("resultados");
+
+            // Limpar resultados anteriores
+            resultadosDiv.innerHTML = "";
+
+            if (!busca) {
+                resultadosDiv.innerHTML = "<p class='erro'>Por favor, digite um termo para a busca.</p>";
+                return;
+            }
+
+            try {
+                const resposta = await fetch(`https://api.github.com/search/users?q=${busca}`);
+                if (!resposta.ok) {
+                    throw new Error("Erro ao acessar a API do GitHub");
+                }
+
+                const dados = await resposta.json();
+
+                if (dados.total_count === 0) {
+                    resultadosDiv.innerHTML = "<p class='erro'>Não foram encontrados usuários para esta pesquisa.</p>";
+                    return;
+                }
+
+                // Exibir usuários encontrados
+                dados.items.forEach(usuario => {
+                    const usuarioDiv = document.createElement("div");
+                    usuarioDiv.className = "usuario";
+
+                    usuarioDiv.innerHTML = `
+                        <img src="${usuario.avatar_url}" alt="Avatar" width="50" height="50">
+                        <div>
+                            <p><strong>${usuario.login}</strong></p>
+                            <p><a href="${usuario.html_url}" target="_blank">Ver perfil</a></p>
+                        </div>
+                    `;
+
+                    resultadosDiv.appendChild(usuarioDiv);
+                });
+            } catch (erro) {
+                resultadosDiv.innerHTML = `<p class='erro'>Erro: ${erro.message}</p>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
 
